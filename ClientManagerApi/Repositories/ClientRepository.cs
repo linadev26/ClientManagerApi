@@ -2,6 +2,7 @@
 using System.Linq;
 using ClientManagerApi.Data;
 using ClientManagerApi.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ClientManagerApi.Repositories
 {
@@ -14,9 +15,9 @@ namespace ClientManagerApi.Repositories
             _context = context;
         }
 
-        public async Task<List<Client>> GetAll()
+        public async Task<List<Client>> GetAll(int userId)
         {
-            return _context.Clients.ToList();
+            return await _context.Clients.Where(x => x.OwnerUserId == userId).ToListAsync();
         }
 
         public async Task<Client> Add(Client client)
@@ -26,9 +27,9 @@ namespace ClientManagerApi.Repositories
             return client;
         }
 
-        public async Task<Client?> GetClientById(int clientId)
+        public async Task<Client?> GetClientById(int clientId, int userId)
         {
-            return _context.Clients.FirstOrDefault(x => x.Id == clientId);
+            return _context.Clients.FirstOrDefault(x => x.Id == clientId && x.OwnerUserId == userId);
         }
     }
 }

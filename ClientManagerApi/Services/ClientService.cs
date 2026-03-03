@@ -13,9 +13,9 @@ namespace ClientManagerApi.Services
             _repository = repository;
         }
 
-        public async Task<List<ClientDto>> GetClientsAsync()
+        public async Task<List<ClientDto>> GetClientsAsync(int userId)
         {
-            var clients = await _repository.GetAll();
+            var clients = await _repository.GetAll(userId);
 
             return clients.Select(c => new ClientDto
             {
@@ -24,7 +24,7 @@ namespace ClientManagerApi.Services
             }).ToList();
         }
 
-        public async Task<ClientDto> CreateClientAsync(ClientDto clientDto)
+        public async Task<ClientDto> CreateClientAsync(ClientDto clientDto, int userId)
         {
             if (string.IsNullOrWhiteSpace(clientDto.Name))
                 throw new Exception("Client name is required");
@@ -33,7 +33,8 @@ namespace ClientManagerApi.Services
             {
                 Name = clientDto.Name.Trim(),
                 Email = clientDto.Email.Trim(),
-                Phone = ""
+                Phone = "",
+                OwnerUserId = userId
             };
 
             var created = await _repository.Add(client);
@@ -45,11 +46,11 @@ namespace ClientManagerApi.Services
             };
         }
 
-        public async Task<ClientDto?> GetClientByIdAsync(int clienteId)
+        public async Task<ClientDto?> GetClientByIdAsync(int clienteId, int userId)
         {
-            var cliente = await _repository.GetClientById(clienteId);
+            var cliente = await _repository.GetClientById(clienteId, userId);
 
-            if(cliente == null)
+            if (cliente == null || cliente.OwnerUserId != userId)
             {
                 return null;
             }

@@ -4,8 +4,8 @@ namespace ClientManagerApi.Services
 {
     public interface IClientService
     {
-        Task<List<ClientDto>> GetClientsAsync();
-        Task<ClientDto> CreateClientAsync(ClientDto clientDto);
-        Task<ClientDto?> GetClientByIdAsync(int clienteId);
+        Task<List<ClientDto>> GetClientsAsync(int userId);
+        Task<ClientDto> CreateClientAsync(ClientDto clientDto, int userId);
+        Task<ClientDto?> GetClientByIdAsync(int clienteId, int userId);
     }
 }

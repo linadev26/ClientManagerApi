@@ -1,8 +1,9 @@
 ﻿using ClientManagerApi.Dtos;
 using ClientManagerApi.Models;
 using ClientManagerApi.Services;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace ClientManagerApi.Controllers
 {
@@ -20,10 +21,16 @@ namespace ClientManagerApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Client>>> GetClients()
+        [Authorize]
+        public async Task<IActionResult> GetClients()
         {
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            return Ok(userId);
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+                return Unauthorized();
+
+            var clients = await _clientService.GetClientsAsync(userId);
+            return Ok(clients);
         }
 
         [HttpPost]
@@ -31,7 +38,12 @@ namespace ClientManagerApi.Controllers
         {
             try
             {
-                var created = _clientService.CreateClientAsync(clientDto);
+                var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+                    return Unauthorized();
+
+                var created = _clientService.CreateClientAsync(clientDto, userId);
                 return Ok(created);
             }
             catch (Exception ex)
@@ -44,7 +56,12 @@ namespace ClientManagerApi.Controllers
         [HttpGet("{clienteId}")]
         public async Task<IActionResult> GetClientById(int clienteId)
         {
-            var client = _clientService.GetClientByIdAsync(clienteId);
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+                return Unauthorized();
+
+            var client = _clientService.GetClientByIdAsync(clienteId, userId);
 
             if(client == null)
                 return NotFound();
