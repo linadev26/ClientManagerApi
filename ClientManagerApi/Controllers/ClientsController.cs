@@ -43,7 +43,7 @@ namespace ClientManagerApi.Controllers
                 if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
                     return Unauthorized();
 
-                var created = _clientService.CreateClientAsync(clientDto, userId);
+                var created = await _clientService.CreateClientAsync(clientDto, userId);
                 return Ok(created);
             }
             catch (Exception ex)
@@ -61,7 +61,7 @@ namespace ClientManagerApi.Controllers
             if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
                 return Unauthorized();
 
-            var client = _clientService.GetClientByIdAsync(clienteId, userId);
+            var client = await _clientService.GetClientByIdAsync(clienteId, userId);
 
             if(client == null)
                 return NotFound();
